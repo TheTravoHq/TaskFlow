@@ -9,6 +9,12 @@ export class UsersService {
     const user = this.users.find((user: User) => user.email === email);
     return user;
   }
+  x;
+
+  findUserById(id: number): User | undefined {
+    const user = this.users.find((user: User) => user.id === id);
+    return user;
+  }
 
   async createUser(email: string, password: string): Promise<User> {
     const newUserWithId = {
