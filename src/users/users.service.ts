@@ -11,6 +11,9 @@ export class UsersService {
       where: {
         email: email,
       },
+      include: {
+        tasks: true,
+      },
     });
   }
 
@@ -18,6 +21,9 @@ export class UsersService {
     return this.prismaService.user.findUnique({
       where: {
         id,
+      },
+      include: {
+        tasks: true,
       },
     });
   }
@@ -29,6 +35,22 @@ export class UsersService {
     };
     return this.prismaService.user.create({
       data: newUserWithId,
+      include: {
+        tasks: true,
+      },
     });
+  }
+
+  async getAllUsers(): Promise<Partial<User>[]> {
+    const users = await this.prismaService.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true,
+        tasks: true,
+      },
+    });
+    return users;
   }
 }
