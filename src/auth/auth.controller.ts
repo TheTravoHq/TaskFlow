@@ -1,8 +1,14 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Req,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { EmailValidationPipe } from './pipes/email-validation.pipe';
-import { PasswordValidationPipe } from './pipes/password-validation.pipe';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { RegisterDto } from './dto/register.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -16,10 +22,12 @@ export class AuthController {
 
   @Post('/register')
   async register(
-    @Body('email', EmailValidationPipe) email: string,
-    @Body('password', PasswordValidationPipe) password: string,
+    @Body(new ValidationPipe()) registerDto: RegisterDto,
   ): Promise<any> {
-    const user = await this.authService.createUser(email, password);
+    const user = await this.authService.createUser(
+      registerDto.email,
+      registerDto.password,
+    );
     if (user) return { message: 'user created', user };
   }
 }

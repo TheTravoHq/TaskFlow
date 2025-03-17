@@ -10,7 +10,7 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
-    const user = this.userService.findUserByEmail(email);
+    const user = await this.userService.findUserByEmail(email);
     if (!user || user.password !== password) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -18,7 +18,7 @@ export class AuthService {
     return result;
   }
   async validateUserById(userId: number): Promise<any> {
-    return this.userService.findUserById(userId);
+    return await this.userService.findUserById(userId);
   }
   async login(user: any): Promise<any> {
     const payload = { email: user.email, sub: user.id };
@@ -29,7 +29,7 @@ export class AuthService {
   }
 
   async createUser(email: string, password: string): Promise<any> {
-    const user = this.userService.findUserByEmail(email);
+    const user = await this.userService.findUserByEmail(email);
     if (user) {
       throw new UnauthorizedException('User already exists');
     }
