@@ -7,6 +7,7 @@ import {
   Get,
   UseGuards,
   Req,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { JWTAuthGuard } from 'src/auth/guards/jwt-auth-guard';
@@ -27,27 +28,27 @@ export class TasksController {
   }
 
   @Get(':userId')
-  async getTasksByUserId(@Param('userId') userId: number) {
+  async getTasksByUserId(@Param('userId', ParseIntPipe) userId: number) {
     return this.tasksService.getTasksByUserId(userId);
   }
 
   @Patch(':taskId/start')
-  async startTask(@Param('taskId') taskId: number) {
+  async startTask(@Param('taskId', ParseIntPipe) taskId: number) {
     return this.tasksService.startTask(taskId);
   }
 
   @Patch(':taskId/end')
-  async endTask(@Param('taskId') taskId: number) {
+  async endTask(@Param('taskId', ParseIntPipe) taskId: number) {
     return this.tasksService.endTask(taskId);
   }
 
   @Patch(':taskId/pause')
-  async pauseTask(@Param('taskId') taskId: number) {
+  async pauseTask(@Param('taskId', ParseIntPipe) taskId: number) {
     return this.tasksService.pauseTask(taskId);
   }
 
   @Patch(':taskId/resume')
-  async resumeTask(@Param('taskId') taskId: number) {
+  async resumeTask(@Param('taskId', ParseIntPipe) taskId: number) {
     return this.tasksService.resumeTask(taskId);
   }
 }
