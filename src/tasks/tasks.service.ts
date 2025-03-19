@@ -23,7 +23,7 @@ export class TasksService {
       where: {
         userId,
         id: { not: currentTaskId },
-        status: 'in-progress',
+        status: 'in_progress',
       },
       data: {
         status: 'paused',
@@ -80,7 +80,7 @@ export class TasksService {
       throw new BadRequestException('Task not found');
     }
 
-    if (task.status === 'in-progress' || task.status === 'completed') {
+    if (task.status === 'in_progress' || task.status === 'completed') {
       throw new BadRequestException('Task is already in progress or completed');
     }
 
@@ -88,7 +88,7 @@ export class TasksService {
 
     return this.updateTaskAndGetAll(taskId, {
       startTime: new Date(),
-      status: 'in-progress',
+      status: 'in_progress',
     });
   }
 
@@ -128,7 +128,7 @@ export class TasksService {
       pauseEndTime: {
         push: new Date(),
       },
-      status: 'in-progress',
+      status: 'in_progress',
     });
   }
 

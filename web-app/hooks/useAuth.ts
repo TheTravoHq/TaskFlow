@@ -4,6 +4,7 @@ import axios from '../lib/axios';
 
 export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [userData, setUserData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const router = useRouter();
 
@@ -20,7 +21,8 @@ export function useAuth() {
     }
 
     try {
-      await axios.get('/auth/profile');
+      const result = await axios.get('/users/profile');
+      setUserData(result.data);
       setIsAuthenticated(true);
     } catch (error) {
       localStorage.removeItem('token');
@@ -35,5 +37,5 @@ export function useAuth() {
     router.push('/auth');
   };
 
-  return { isAuthenticated, isLoading, logout, checkAuth };
+  return { isAuthenticated, isLoading, logout, checkAuth, userData };
 }

@@ -2,7 +2,7 @@ import { User } from '../users/users.entity';
 
 export enum TaskStatus {
   PENDING = 'pending',
-  IN_PROGRESS = 'in-progress',
+  IN_PROGRESS = 'in_progress',
   PAUSED = 'paused',
   COMPLETED = 'completed',
 }
