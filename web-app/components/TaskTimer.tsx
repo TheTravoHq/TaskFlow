@@ -33,26 +33,28 @@ export function TaskTimer({
 
     const totalPausedTime = calculatePausedDuration();
     const start = new Date(startTime).getTime();
-    const now = new Date().getTime();
-    const end = endTime ? new Date(endTime).getTime() : start + totalPausedTime;
+    const now = endTime ? new Date(endTime).getTime() : new Date().getTime();
 
-    if (!endTime) {
-      return Math.floor((now - start - totalPausedTime) / 1000);
-    } else {
-      return Math.floor((end - start - totalPausedTime) / 1000);
-    }
+    const rawElapsed = now - start - totalPausedTime;
+    return Math.max(0, Math.floor(rawElapsed / 1000));
   };
 
   useEffect(() => {
     setElapsedTime(calculateElapsedTime());
-    let timer = null;
-    if (isActive && startTime) {
-      timer = setInterval(() => {
-        setElapsedTime((prev) => prev + 1);
+
+    if (isActive && startTime && !endTime) {
+      const timer = setInterval(() => {
+        setElapsedTime(calculateElapsedTime());
       }, 1000);
+      return () => clearInterval(timer);
     }
-    return () => clearInterval(timer);
-  }, [isActive, startTime, pauseStartTime, pauseEndTime]);
+  }, [
+    isActive,
+    startTime,
+    endTime,
+    pauseStartTime.length,
+    pauseEndTime.length,
+  ]);
 
   const formatTime = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
