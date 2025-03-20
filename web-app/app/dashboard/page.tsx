@@ -3,7 +3,19 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTasks } from '../../hooks/useTasks';
 import { TaskTimer } from '../../components/TaskTimer';
-import { format, isToday, parseISO } from 'date-fns';
+import { format, toZonedTime } from 'date-fns-tz';
+import { isToday, parseISO } from 'date-fns';
+
+// Add utility function at the top
+const formatLocalDate = (utcDate: string, formatStr: string) => {
+  const date = toZonedTime(
+    parseISO(utcDate),
+    Intl.DateTimeFormat().resolvedOptions().timeZone,
+  );
+  return format(date, formatStr, {
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  });
+};
 
 export default function DashboardPage() {
   const { isAuthenticated, isLoading, userData } = useAuth();
@@ -38,7 +50,17 @@ export default function DashboardPage() {
   // Group tasks by date
   const groupTasksByDate = (tasks: any[]) => {
     const grouped = tasks.reduce((acc: any, task) => {
-      const date = format(parseISO(task.createdAt), 'yyyy-MM-dd');
+      let date;
+      const today = format(new Date(), 'yyyy-MM-dd');
+
+      if (task.status === 'completed') {
+        date = formatLocalDate(task.endTime, 'yyyy-MM-dd');
+      } else if (task.status === 'paused' || task.status === 'pending') {
+        date = today;
+      } else {
+        date = formatLocalDate(task.createdAt, 'yyyy-MM-dd');
+      }
+
       if (!acc[date]) {
         acc[date] = [];
       }
@@ -56,7 +78,14 @@ export default function DashboardPage() {
   // Filter tasks based on selected date
   const filteredTasks = tasks?.filter((task) => {
     if (!selectedDate) return true;
-    return format(parseISO(task.createdAt), 'yyyy-MM-dd') === selectedDate;
+
+    if (task.status === 'completed') {
+      return formatLocalDate(task.endTime, 'yyyy-MM-dd') === selectedDate;
+    } else if (task.status === 'paused' || task.status === 'pending') {
+      return format(new Date(), 'yyyy-MM-dd') === selectedDate;
+    } else {
+      return formatLocalDate(task.createdAt, 'yyyy-MM-dd') === selectedDate;
+    }
   });
 
   const groupedTasks = groupTasksByDate(filteredTasks || []);
@@ -231,7 +260,7 @@ export default function DashboardPage() {
                       className="border-t pt-6 first:border-t-0 first:pt-0"
                     >
                       <h3 className="text-lg font-semibold text-gray-700 mb-4">
-                        {format(parseISO(date), 'MMMM d, yyyy')}
+                        {formatLocalDate(date, 'MMMM d, yyyy')}
                       </h3>
                       {renderTasksByStatus(dateTasks, updateTaskStatus)}
                     </div>
@@ -266,7 +295,7 @@ function renderTasksByStatus(tasks: any[], updateTaskStatus: any) {
             {filteredTasks.map((task) => (
               <div
                 key={task.id}
-                className={`${bgColor} p-4 rounded-lg border transition-all hover:shadow-md`}
+                className={`${bgColor} p-4 rounded-lg border transition-all hover:shadow-md relative`}
               >
                 <div className="flex justify-between items-start mb-3">
                   <div>
@@ -320,6 +349,10 @@ function renderTasksByStatus(tasks: any[], updateTaskStatus: any) {
                       </button>
                     )}
                   </div>
+                </div>
+                <div className="text-xs text-gray-500 absolute bottom-2 right-4">
+                  Created:{' '}
+                  {formatLocalDate(task.createdAt, 'MMM d, yyyy h:mm a')}
                 </div>
               </div>
             ))}
