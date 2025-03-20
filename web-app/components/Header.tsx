@@ -19,10 +19,10 @@ export function Header() {
               Dashboard
             </Link>
             <Link
-              href="/projects"
+              href="/timeline"
               className="text-sm text-gray-400 hover:text-gray-100 transition-colors"
             >
-              Projects
+              Timeline
             </Link>
           </nav>
         </div>

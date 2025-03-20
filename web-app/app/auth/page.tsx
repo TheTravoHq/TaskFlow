@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import axios from '../../lib/axios';
 
@@ -41,26 +40,18 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
+      <div className="max-w-md w-full px-8 py-4 bg-white rounded-lg shadow-lg">
         <div className="flex flex-col items-center">
-          <Image
-            className="dark:invert mb-6"
-            src="/next.svg"
-            alt="Next.js logo"
-            width={120}
-            height={25}
-            priority
-          />
-          <h2 className="text-2xl font-bold">
+          <h2 className="text-2xl font-bold text-indigo-600">
             {isLogin ? 'Sign in to your account' : 'Create new account'}
           </h2>
         </div>
 
-        <div className="mt-8 space-y-6">
+        <div className="mt-8 space-y-8">
           {error && (
             <div className="text-red-500 text-sm text-center">{error}</div>
           )}
-          <div className="rounded-md shadow-sm space-y-4">
+          <div className="space-y-4">
             <div>
               <label htmlFor="email" className="sr-only">
                 Email address
@@ -102,7 +93,7 @@ export default function AuthPage() {
           </button>
         </div>
 
-        <div className="text-center">
+        <div className="text-center mt-4">
           <button
             onClick={() => setIsLogin(!isLogin)}
             className="text-sm text-indigo-600 hover:text-indigo-500"
