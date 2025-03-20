@@ -17,6 +17,10 @@ export function useAuth() {
     if (!token) {
       setIsAuthenticated(false);
       setIsLoading(false);
+      // Only redirect to /auth if not on home route
+      if (window.location.pathname !== '/') {
+        window.location.href = '/auth';
+      }
       return;
     }
 

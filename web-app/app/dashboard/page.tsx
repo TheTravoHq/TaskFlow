@@ -23,8 +23,6 @@ export default function DashboardPage() {
     return <div>Loading...</div>;
   }
 
-  console.log('tasks', tasks);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {

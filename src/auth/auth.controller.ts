@@ -28,6 +28,6 @@ export class AuthController {
       registerDto.email,
       registerDto.password,
     );
-    if (user) return { message: 'user created', user };
+    if (user) return await this.authService.login(user);
   }
 }
