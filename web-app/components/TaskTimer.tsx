@@ -67,7 +67,7 @@ export function TaskTimer({
   };
 
   return (
-    <div className="text-sm font-mono bg-gray-700 px-2 py-1 rounded-md">
+    <div className="text-sm font-mono bg-gray-700 px-2 py-1 rounded-md w-fit">
       {formatTime(elapsedTime)}
     </div>
   );

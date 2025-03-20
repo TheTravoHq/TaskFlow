@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTasks } from '../../hooks/useTasks';
 import { TaskTimer } from '../../components/TaskTimer';
-import { TotalTimeDisplay } from '../../components/TotalTimeDisplay';
-import { TotalTimeSum } from '@/components/TotalTimeSum';
+import { format, isToday, parseISO } from 'date-fns';
 
 export default function DashboardPage() {
   const { isAuthenticated, isLoading, userData } = useAuth();
@@ -12,6 +11,8 @@ export default function DashboardPage() {
     useTasks();
   const [newTask, setNewTask] = useState({ title: '', description: '' });
   const [showForm, setShowForm] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [showPreviousTasks, setShowPreviousTasks] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -34,54 +35,98 @@ export default function DashboardPage() {
     }
   };
 
+  // Group tasks by date
+  const groupTasksByDate = (tasks: any[]) => {
+    const grouped = tasks.reduce((acc: any, task) => {
+      const date = format(parseISO(task.createdAt), 'yyyy-MM-dd');
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(task);
+      return acc;
+    }, {});
+
+    // Sort dates in descending order
+    return Object.entries(grouped).sort(
+      ([dateA], [dateB]) =>
+        new Date(dateB).getTime() - new Date(dateA).getTime(),
+    );
+  };
+
+  // Filter tasks based on selected date
+  const filteredTasks = tasks?.filter((task) => {
+    if (!selectedDate) return true;
+    return format(parseISO(task.createdAt), 'yyyy-MM-dd') === selectedDate;
+  });
+
+  const groupedTasks = groupTasksByDate(filteredTasks || []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
+        {/* Header section */}
         <div className="flex justify-between items-center mb-10">
           <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
             My Tasks
           </h1>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg 
-            transition duration-200 ease-in-out shadow-md hover:shadow-lg flex items-center gap-2"
-          >
-            {showForm ? (
-              <>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Cancel
-              </>
-            ) : (
-              <>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                New Task
-              </>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setShowForm(!showForm)}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg 
+              transition duration-200 ease-in-out shadow-md hover:shadow-lg flex items-center gap-2"
+            >
+              {showForm ? (
+                <>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Cancel
+                </>
+              ) : (
+                <>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  New Task
+                </>
+              )}
+            </button>
+            <input
+              type="date"
+              onChange={(e) => setSelectedDate(e.target.value)}
+              value={selectedDate || ''}
+              className="px-4 py-2 text-gray-600 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-200"
+            />
+            {selectedDate && (
+              <button
+                onClick={() => setSelectedDate(null)}
+                className="text-indigo-600 hover:text-indigo-800"
+              >
+                Clear Filter
+              </button>
             )}
-          </button>
+          </div>
         </div>
 
+        {/* Task Form */}
         {showForm && (
           <form
             onSubmit={handleSubmit}
@@ -136,40 +181,114 @@ export default function DashboardPage() {
           </div>
         )}
 
-        <div className="space-y-6">
-          <TotalTimeSum tasks={tasks} />
-          {/* Active Tasks Section */}
+        {/* Tasks Sections */}
+        <div className="space-y-8">
+          {/* Today's Tasks */}
           <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">
-              Active Tasks
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">
+              Today's Tasks
             </h2>
-            <div className="space-y-4">
-              {tasks
-                ?.filter((t) => t.status === 'in_progress')
-                .map((task) => (
-                  <div
-                    key={task.id}
-                    className="p-4 bg-indigo-50 rounded-lg border-2 border-indigo-200"
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-semibold text-lg text-gray-900">
-                            Title: {task.title}
-                          </h3>
-                          <TaskTimer
-                            startTime={task.startTime}
-                            isActive={task.status === 'in_progress'}
-                            pauseEndTime={task.pauseEndTime}
-                            pauseStartTime={task.pauseStartTime}
-                            endTime={task.endTime}
-                          />
-                        </div>
-                        <p className="text-gray-700">
-                          Description: {task.description || 'NA'}
-                        </p>
-                      </div>
-                      <div className="flex space-x-2">
+            {groupedTasks
+              .filter(([date]) => isToday(parseISO(date)))
+              .map(([date, dateTasks]: [string, any[]]) => (
+                <div key={date} className="space-y-4">
+                  {renderTasksByStatus(dateTasks, updateTaskStatus)}
+                </div>
+              ))}
+          </div>
+
+          {/* Previous Tasks (Collapsible) */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <button
+              onClick={() => setShowPreviousTasks(!showPreviousTasks)}
+              className="w-full flex justify-between items-center text-xl font-bold text-gray-800 mb-6"
+            >
+              <span>Previous Tasks</span>
+              <svg
+                className={`w-6 h-6 transform transition-transform ${
+                  showPreviousTasks ? 'rotate-180' : ''
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            {showPreviousTasks && (
+              <div className="space-y-8">
+                {groupedTasks
+                  .filter(([date]) => !isToday(parseISO(date)))
+                  .map(([date, dateTasks]: [string, any[]]) => (
+                    <div
+                      key={date}
+                      className="border-t pt-6 first:border-t-0 first:pt-0"
+                    >
+                      <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                        {format(parseISO(date), 'MMMM d, yyyy')}
+                      </h3>
+                      {renderTasksByStatus(dateTasks, updateTaskStatus)}
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Helper function to render tasks by status
+function renderTasksByStatus(tasks: any[], updateTaskStatus: any) {
+  const statusSections = [
+    { status: 'in_progress', title: 'In Progress', bgColor: 'bg-indigo-50' },
+    { status: 'pending', title: 'Pending', bgColor: 'bg-gray-50' },
+    { status: 'paused', title: 'Paused', bgColor: 'bg-yellow-50' },
+    { status: 'completed', title: 'Completed', bgColor: 'bg-green-50' },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {statusSections.map(({ status, title, bgColor }) => {
+        const filteredTasks = tasks.filter((t) => t.status === status);
+        if (filteredTasks.length === 0) return null;
+
+        return (
+          <div key={status} className="space-y-4">
+            <h4 className="text-md font-medium text-gray-700">{title}</h4>
+            {filteredTasks.map((task) => (
+              <div
+                key={task.id}
+                className={`${bgColor} p-4 rounded-lg border transition-all hover:shadow-md`}
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="font-semibold text-lg text-gray-900">
+                        Title: {task.title}
+                      </h3>
+                      <TaskTimer
+                        startTime={task.startTime}
+                        isActive={task.status === 'in_progress'}
+                        pauseEndTime={task.pauseEndTime}
+                        pauseStartTime={task.pauseStartTime}
+                        endTime={task.endTime}
+                      />
+                    </div>
+                    <p className="text-gray-700">
+                      Description: {task.description || 'NA'}
+                    </p>
+                  </div>
+                  <div className="flex space-x-2">
+                    {task.status === 'in_progress' && (
+                      <>
                         <button
                           onClick={() => updateTaskStatus(task.id, 'pause')}
                           className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
@@ -182,133 +301,31 @@ export default function DashboardPage() {
                         >
                           Complete
                         </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-
-          {/* Pending Tasks Section */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">
-              Pending Tasks
-            </h2>
-            <div className="space-y-4">
-              {tasks
-                ?.filter((t) => t.status === 'pending')
-                .map((task) => (
-                  <div
-                    key={task.id}
-                    className="p-4 bg-gray-50 rounded-lg border border-gray-200"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
-                          Title: {task.title}
-                        </h3>
-                        <p className="text-gray-700">
-                          Description: {task.description || 'NA'}
-                        </p>
-                      </div>
+                      </>
+                    )}
+                    {task.status === 'pending' && (
                       <button
                         onClick={() => updateTaskStatus(task.id, 'start')}
                         className="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600"
                       >
                         Start
                       </button>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-
-          {/* Paused Tasks Section */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">
-              Paused Tasks
-            </h2>
-            <div className="space-y-4">
-              {tasks
-                ?.filter((t) => t.status === 'paused')
-                .map((task) => (
-                  <div
-                    key={task.id}
-                    className="p-4 bg-yellow-50 rounded-lg border border-yellow-200"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
-                          Title: {task.title}
-                        </h3>
-                        <p className="text-gray-700">
-                          Description: {task.description || 'NA'}
-                        </p>
-                        <p className="text-sm text-yellow-700 mt-2">
-                          Total time:{' '}
-                        </p>
-                        <TaskTimer
-                          startTime={task.startTime}
-                          isActive={false}
-                          pauseEndTime={task.pauseEndTime}
-                          pauseStartTime={task.pauseStartTime}
-                          endTime={task.endTime}
-                        />
-                      </div>
+                    )}
+                    {task.status === 'paused' && (
                       <button
                         onClick={() => updateTaskStatus(task.id, 'resume')}
                         className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
                       >
                         Resume
                       </button>
-                    </div>
+                    )}
                   </div>
-                ))}
-            </div>
+                </div>
+              </div>
+            ))}
           </div>
-
-          {/* Completed Tasks Section */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">
-              Completed Tasks
-            </h2>
-            <div className="space-y-4">
-              {tasks
-                ?.filter((t) => t.status === 'completed')
-                .map((task) => (
-                  <div
-                    key={task.id}
-                    className="p-4 bg-green-50 rounded-lg border border-green-200"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
-                          Title: {task.title}
-                        </h3>
-                        <p className="text-gray-700">
-                          Description: {task.description || 'NA'}
-                        </p>
-                        <p className="text-sm text-red-600 mt-2">
-                          Total time spent:{' '}
-                        </p>
-
-                        <TaskTimer
-                          startTime={task.startTime}
-                          isActive={false}
-                          pauseEndTime={task.pauseEndTime}
-                          pauseStartTime={task.pauseStartTime}
-                          endTime={task.endTime}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-          {/* Time Statistics Section */}
-          <TotalTimeDisplay tasks={tasks || []} />
-        </div>
-      </div>
+        );
+      })}
     </div>
   );
 }
