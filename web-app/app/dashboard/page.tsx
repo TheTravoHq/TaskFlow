@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTasks } from '../../hooks/useTasks';
 import { TaskTimer } from '../../components/TaskTimer';
+import { TotalTimeDisplay } from '../../components/TotalTimeDisplay';
+import { TotalTimeSum } from '@/components/TotalTimeSum';
 
 export default function DashboardPage() {
   const { isAuthenticated, isLoading, userData } = useAuth();
@@ -137,6 +139,7 @@ export default function DashboardPage() {
         )}
 
         <div className="space-y-6">
+          <TotalTimeSum tasks={tasks} />
           {/* Active Tasks Section */}
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">
@@ -304,6 +307,8 @@ export default function DashboardPage() {
                 ))}
             </div>
           </div>
+          {/* Time Statistics Section */}
+          <TotalTimeDisplay tasks={tasks || []} />
         </div>
       </div>
     </div>
