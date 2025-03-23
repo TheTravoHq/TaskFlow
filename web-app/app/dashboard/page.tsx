@@ -4,17 +4,31 @@ import { useAuth } from '../../hooks/useAuth';
 import { useTasks } from '../../hooks/useTasks';
 import { TaskTimer } from '../../components/TaskTimer';
 import { format, toZonedTime } from 'date-fns-tz';
-import { isToday, parseISO } from 'date-fns';
+import { isToday, parseISO, isValid } from 'date-fns';
 
-// Add utility function at the top
-const formatLocalDate = (utcDate: string, formatStr: string) => {
-  const date = toZonedTime(
-    parseISO(utcDate),
-    Intl.DateTimeFormat().resolvedOptions().timeZone,
-  );
-  return format(date, formatStr, {
-    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  });
+// Update the formatLocalDate function with null checks and error handling
+const formatLocalDate = (
+  date: string | null | undefined,
+  formatStr: string,
+) => {
+  if (!date) return 'Not set';
+
+  try {
+    const parsedDate = parseISO(date);
+    if (!isValid(parsedDate)) return 'Invalid date';
+
+    const zonedDate = toZonedTime(
+      parsedDate,
+      Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+
+    return format(zonedDate, formatStr, {
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    });
+  } catch (error) {
+    console.error('Date formatting error:', error);
+    return 'Invalid date';
+  }
 };
 
 export default function DashboardPage() {
@@ -55,7 +69,11 @@ export default function DashboardPage() {
 
       if (task.status === 'completed') {
         date = formatLocalDate(task.endTime, 'yyyy-MM-dd');
-      } else if (task.status === 'paused' || task.status === 'pending') {
+      } else if (
+        task.status === 'paused' ||
+        task.status === 'pending' ||
+        task.status === 'in_progress'
+      ) {
         date = today;
       } else {
         date = formatLocalDate(task.createdAt, 'yyyy-MM-dd');
@@ -350,9 +368,17 @@ function renderTasksByStatus(tasks: any[], updateTaskStatus: any) {
                     )}
                   </div>
                 </div>
-                <div className="text-xs text-gray-500 absolute bottom-2 right-4">
+                <div className="text-xs text-gray-500 absolute bottom-6 right-4">
                   Created:{' '}
                   {formatLocalDate(task.createdAt, 'MMM d, yyyy h:mm a')}
+                </div>
+                <div className="text-xs text-gray-500 absolute bottom-2 right-4">
+                  {task.endTime && (
+                    <>
+                      Completed:{' '}
+                      {formatLocalDate(task.endTime, 'MMM d, yyyy h:mm a')}
+                    </>
+                  )}
                 </div>
               </div>
             ))}
