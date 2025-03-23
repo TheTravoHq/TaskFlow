@@ -66,8 +66,30 @@ export function TaskTimer({
       .padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  const calculateColor = (
+    seconds: number,
+  ): { r: number; g: number; b: number } => {
+    const threshold = 30 * 60; // 30 minutes in seconds
+    const progress = Math.min(seconds / threshold, 2); // Cap at 2 (60 minutes)
+
+    // Start with green (0, 200, 0)
+    // Transition to yellow-orange (200, 200, 0)
+    // End with red (200, 0, 0)
+    let r = Math.min(200, progress * 200);
+    let g = Math.max(0, 200 - Math.max(0, progress - 1) * 200);
+    let b = 0;
+
+    return { r: Math.round(r), g: Math.round(g), b };
+  };
+
+  const color = calculateColor(elapsedTime);
+  const backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
+
   return (
-    <div className="text-sm font-mono bg-gray-700 px-2 py-1 rounded-md w-fit">
+    <div
+      className="text-sm font-mono px-2 py-1 rounded-md w-fit transition-colors duration-1000"
+      style={{ backgroundColor }}
+    >
       {formatTime(elapsedTime)}
     </div>
   );

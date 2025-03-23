@@ -368,16 +368,20 @@ function renderTasksByStatus(tasks: any[], updateTaskStatus: any) {
                     )}
                   </div>
                 </div>
-                <div className="text-xs text-gray-500 absolute bottom-6 right-4">
-                  Created:{' '}
-                  {formatLocalDate(task.createdAt, 'MMM d, yyyy h:mm a')}
-                </div>
-                <div className="text-xs text-gray-500 absolute bottom-2 right-4">
+                <div className="text-xs text-gray-500 absolute bottom-2 right-4 flex flex-col items-end">
+                  {task.createdAt && (
+                    <div>
+                      Created:{' '}
+                      {formatLocalDate(task.createdAt, 'MMM d, yyyy h:mm a')}
+                    </div>
+                  )}
                   {task.endTime && (
-                    <>
-                      Completed:{' '}
-                      {formatLocalDate(task.endTime, 'MMM d, yyyy h:mm a')}
-                    </>
+                    <div>
+                      <>
+                        Completed:{' '}
+                        {formatLocalDate(task.endTime, 'MMM d, yyyy h:mm a')}
+                      </>
+                    </div>
                   )}
                 </div>
               </div>
