@@ -28,10 +28,9 @@ export class UsersService {
     });
   }
 
-  async createUser(email: string, password: string): Promise<User> {
+  async createUser(email: string): Promise<User> {
     const newUserWithId = {
       email,
-      password,
     };
     return this.prismaService.user.create({
       data: newUserWithId,

@@ -16,7 +16,6 @@ datasource db {
 model User {
   id        Int   @id @default(autoincrement())
   email     String   @unique
-  password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -37,6 +36,15 @@ model Task {
   status         String
 
   user           User      @relation(fields: [userId], references: [id])
+}
+
+model Otp {
+  id         String   @id @default(uuid())
+  email      String
+  otp        String
+  expiresAt  DateTime
+  verified   Boolean  @default(false)
+  createdAt  DateTime @default(now())
 }
 
 

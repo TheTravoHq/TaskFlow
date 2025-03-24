@@ -5,41 +5,85 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
+import { LoginDto, VerifyOtpDto } from './dto/register.dto';
+import { PrismaService } from 'prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly prismaService: PrismaService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(email: string): Promise<any> {
     const user = await this.userService.findUserByEmail(email);
-    if (!user || user.password !== password) {
+    if (!user) {
       throw new BadRequestException('Invalid credentials');
     }
-    const { password: _, ...result } = user;
-    return result;
+    return user;
   }
   async validateUserById(userId: number): Promise<any> {
     return await this.userService.findUserById(userId);
   }
-  async login(user: any): Promise<any> {
-    const payload = { email: user.email, sub: user.id };
+  async login({ email }: LoginDto): Promise<any> {
+    return await this.sendOtp({ email });
+  }
+
+  async sendOtp({ email }: LoginDto) {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await this.prismaService.otp.create({
+      data: {
+        email,
+        otp,
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 mins
+      },
+    });
+
+    // TODO: Use MailerService to send code via email
+    console.log(`OTP for ${email}: ${otp}`);
+  }
+
+  async verifyOtp({ email, otp }: VerifyOtpDto): Promise<any> {
+    const otpRecord = await this.prismaService.otp.findFirst({
+      where: {
+        email,
+        otp,
+        verified: false,
+        expiresAt: {
+          gte: new Date(),
+        },
+      },
+    });
+
+    if (!otpRecord) {
+      throw new UnauthorizedException('Invalid or expired OTP');
+    }
+
+    // Mark as verified
+    await this.prismaService.otp.update({
+      where: { id: otpRecord.id },
+      data: { verified: true },
+    });
+
+    const userWithId = await this.createUser(email);
+    const payload = { email: userWithId.email, sub: userWithId.id };
+
+    //Generate JWT
     return {
       access_token: this.jwtService.sign(payload),
       message: 'login successful',
     };
   }
 
-  async createUser(email: string, password: string): Promise<any> {
+  async createUser(email: string): Promise<any> {
     const user = await this.userService.findUserByEmail(email);
     if (user) {
-      throw new UnauthorizedException('User already exists');
+      return user;
     }
 
-    const newUserWithId = await this.userService.createUser(email, password);
-    const { password: _, ...result } = newUserWithId;
-    return result;
+    const newUserWithId = await this.userService.createUser(email);
+    return newUserWithId;
   }
 }
