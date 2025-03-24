@@ -5,6 +5,7 @@ import { useTasks } from '../../hooks/useTasks';
 import { TaskTimer } from '../../components/TaskTimer';
 import { format, toZonedTime } from 'date-fns-tz';
 import { isToday, parseISO, isValid } from 'date-fns';
+import { use } from 'passport';
 
 // Update the formatLocalDate function with null checks and error handling
 const formatLocalDate = (
@@ -32,7 +33,7 @@ const formatLocalDate = (
 };
 
 export default function DashboardPage() {
-  const { isAuthenticated, isLoading, userData } = useAuth();
+  const { isAuthenticated, isLoading, userData, getUserData } = useAuth();
   const { tasks, loading, error, fetchTasks, createTask, updateTaskStatus } =
     useTasks();
   const [newTask, setNewTask] = useState({ title: '', description: '' });
@@ -41,10 +42,14 @@ export default function DashboardPage() {
   const [showPreviousTasks, setShowPreviousTasks] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    getUserData();
+  }, []);
+
+  useEffect(() => {
+    if (userData) {
       fetchTasks(userData?.id);
     }
-  }, [isAuthenticated, fetchTasks]);
+  }, [isAuthenticated, fetchTasks, userData]);
 
   if (isLoading || loading) {
     return <div>Loading...</div>;

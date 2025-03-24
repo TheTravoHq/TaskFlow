@@ -1,19 +1,22 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { useTasks } from '../../hooks/useTasks';
 import { useRouter } from 'next/navigation';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { isLoading, userData, logout } = useAuth();
+  const { isLoading, userData, logout, getUserData } = useAuth();
   const [stats, setStats] = useState({
     completed: 0,
     inProgress: 0,
     paused: 0,
     pending: 0,
   });
+
+  useEffect(() => {
+    getUserData();
+  }, []);
 
   useEffect(() => {
     if (userData) {
@@ -40,6 +43,8 @@ export default function ProfilePage() {
     );
   }
 
+  console.log(userData);
+
   const chartData = [
     { name: 'Completed', value: stats.completed, color: '#10B981' },
     { name: 'In Progress', value: stats.inProgress, color: '#6366F1' },
@@ -48,8 +53,6 @@ export default function ProfilePage() {
   ];
 
   const totalTasks = userData?.tasks?.length || 0;
-
-  console.log(userData, 'userData');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">

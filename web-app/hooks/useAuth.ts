@@ -1,15 +1,11 @@
+import axiosInstance from '@/lib/axios';
+import { use } from 'passport';
 import { useState, useEffect } from 'react';
-import axios from '../lib/axios';
-
-interface User {
-  id: string;
-  email: string;
-}
 
 export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [userData, setUserData] = useState<User | null>(null);
+  const [userData, setUserData] = useState<any>(null);
 
   useEffect(() => {
     checkAuth();
@@ -23,9 +19,6 @@ export function useAuth() {
         setIsLoading(false);
         return;
       }
-
-      const response = await axios.get('/users/profile');
-      setUserData(response.data);
       setIsAuthenticated(true);
     } catch (error) {
       setIsAuthenticated(false);
@@ -37,8 +30,13 @@ export function useAuth() {
   const logout = async () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
-    setUserData(null);
   };
 
-  return { isAuthenticated, isLoading, userData, logout };
+  const getUserData = async () => {
+    // Fetch user data from the server
+    const response = await axiosInstance.get('/users/profile');
+    setUserData(response.data);
+  };
+
+  return { isAuthenticated, isLoading, logout, userData, getUserData };
 }

@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from 'prisma/prisma.module';
 import { TasksModule } from './tasks/tasks.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -13,6 +14,14 @@ import { TasksModule } from './tasks/tasks.module';
     UsersModule,
     ConfigModule.forRoot({
       isGlobal: true, // Makes config available globally
+    }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 2,
+        },
+      ],
     }),
     PrismaModule,
     TasksModule,

@@ -1,6 +1,7 @@
 import { Body, Controller, Post, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto, VerifyOtpDto } from './dto/register.dto';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -11,7 +12,7 @@ export class AuthController {
   // async login(@Req() req): Promise<any> {
   //   return await this.authService.login(req?.user);
   // }
-
+  @SkipThrottle({ default: false })
   @Post('/login')
   async login(@Body(new ValidationPipe()) loginDto: LoginDto): Promise<any> {
     return await this.authService.login(loginDto);
