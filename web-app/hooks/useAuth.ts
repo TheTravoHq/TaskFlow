@@ -1,45 +1,44 @@
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import axios from '../lib/axios';
+
+interface User {
+  id: string;
+  email: string;
+}
 
 export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [userData, setUserData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const router = useRouter();
+  const [userData, setUserData] = useState<User | null>(null);
 
   useEffect(() => {
     checkAuth();
   }, []);
 
   const checkAuth = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setIsAuthenticated(false);
-      setIsLoading(false);
-      // Only redirect to /auth if not on home route
-      if (window.location.pathname !== '/') {
-        window.location.href = '/auth';
-      }
-      return;
-    }
-
     try {
-      const result = await axios.get('/users/profile');
-      setUserData(result.data);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await axios.get('/users/profile');
+      setUserData(response.data);
       setIsAuthenticated(true);
     } catch (error) {
-      localStorage.removeItem('token');
       setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
-  const logout = () => {
+  const logout = async () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
-    router.push('/auth');
+    setUserData(null);
   };
 
-  return { isAuthenticated, isLoading, logout, checkAuth, userData };
+  return { isAuthenticated, isLoading, userData, logout };
 }
