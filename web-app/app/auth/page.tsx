@@ -5,7 +5,6 @@ import axios from '../../lib/axios';
 
 export default function AuthPage() {
   const router = useRouter();
-  const [isLogin, setIsLogin] = useState(true);
   const [showOtpScreen, setShowOtpScreen] = useState(false);
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -81,22 +80,49 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full px-8 py-4 bg-white rounded-lg shadow-lg">
-        <div className="flex flex-col items-center">
-          <h2 className="text-2xl font-bold text-indigo-600">
-            {!showOtpScreen ? 'Sign in to your account' : 'Enter OTP'}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
+      <div className="max-w-md w-full p-8 bg-white/90 backdrop-blur-sm rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-8 w-8 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
+          </div>
+          <h2 className="text-3xl font-bold text-indigo-700">
+            {!showOtpScreen ? 'Welcome Back' : 'Verify OTP'}
           </h2>
+          <p className="text-gray-700 text-center">
+            {!showOtpScreen
+              ? 'Sign in to access your account'
+              : 'Enter the code sent to your email'}
+          </p>
         </div>
 
-        <div className="mt-8 space-y-8">
+        <div className="mt-8 space-y-6">
           {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
+            <div className="bg-red-100 text-red-600 p-3 rounded-lg text-sm text-center font-medium">
+              {error}
+            </div>
           )}
+
           <div className="space-y-4">
             {!showOtpScreen ? (
-              <div>
-                <label htmlFor="email" className="sr-only">
+              <div className="relative">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium text-gray-900 mb-1 block"
+                >
                   Email address
                 </label>
                 <input
@@ -106,16 +132,13 @@ export default function AuthPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Email address"
+                  className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+                  placeholder="Enter your email"
                 />
               </div>
             ) : (
-              <div className="flex justify-center">
-                <div className="w-1/2">
-                  <label htmlFor="otp" className="sr-only">
-                    Enter OTP
-                  </label>
+              <div className="space-y-4">
+                <div className="flex justify-center">
                   <input
                     id="otp"
                     name="OTP"
@@ -127,7 +150,8 @@ export default function AuthPage() {
                       const onlyNumbers = e.target.value.replace(/[^0-9]/g, '');
                       setOtp(onlyNumbers);
                     }}
-                    className="text-center appearance-none relative block w-full px-3 py-2 border-0 border-b-2 border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    className="text-center w-48 appearance-none px-4 py-3 text-2xl tracking-widest border-0 border-b-2 border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:border-indigo-500 transition-all duration-300"
+                    placeholder="______"
                   />
                 </div>
               </div>
@@ -137,37 +161,38 @@ export default function AuthPage() {
           <button
             onClick={!showOtpScreen ? handleLogin : handleSubmit}
             type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300"
           >
-            {!showOtpScreen ? 'Sign in' : 'Verify OTP'}
+            {!showOtpScreen ? 'Continue with Email' : 'Verify OTP'}
           </button>
         </div>
 
         {showOtpScreen && (
-          <div>
-            <div className="text-center mt-4">
-              <span className="text-gray-500">{"Didn't receive OTP?   "}</span>
+          <div className="space-y-3">
+            <div className="text-center mt-6">
+              <span className="text-gray-700">
+                {"Didn't receive the code? "}
+              </span>
               {showResend ? (
                 <button
                   onClick={handleResend}
-                  className="text-sm text-indigo-600 hover:text-indigo-500"
+                  className="text-sm font-medium text-indigo-700 hover:text-indigo-900 transition-colors duration-300"
                 >
-                  Resend OTP
+                  Resend Code
                 </button>
               ) : (
-                <span className="text-sm text-indigo-600 hover:text-indigo-500">
-                  {timer} sec
+                <span className="text-sm font-medium text-indigo-700">
+                  {timer} seconds
                 </span>
               )}
             </div>
 
-            <div className="text-center mt-1">
-              <span className="text-gray-500">{'Have other email?   '}</span>
+            <div className="text-center">
               <button
                 onClick={resetState}
-                className="text-sm text-indigo-600 hover:text-indigo-500 cursor-pointer"
+                className="text-sm font-medium text-gray-700 hover:text-indigo-700 transition-colors duration-300"
               >
-                Sign in
+                Use a different email
               </button>
             </div>
           </div>
