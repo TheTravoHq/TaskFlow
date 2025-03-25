@@ -66,7 +66,22 @@ export class AuthService {
       from: `"TaskFlow Support" <${mailgun_username}>`,
       to: email,
       subject: 'Your OTP Code',
-      text: `Your One-Time Password is: ${otp}. It is valid for 10 minutes.`,
+      html: `
+      <div style="background-color: #f6f6f6; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h1 style="color: #333; text-align: center; font-family: Arial, sans-serif;">TaskFlow OTP Verification</h1>
+        <div style="text-align: center; padding: 20px;">
+          <p style="font-size: 16px; color: #666;">Your One-Time Password is:</p>
+          <h2 style="font-size: 32px; color: #4CAF50; letter-spacing: 5px; margin: 20px 0;">${otp}</h2>
+          <p style="font-size: 14px; color: #999;">This code will expire in 10 minutes</p>
+        </div>
+        <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #666;">
+          <p>If you didn't request this code, please ignore this email.</p>
+        </div>
+        </div>
+      </div>
+      `,
+      text: `Your One-Time Password is: ${otp}. It is valid for 10 minutes.`, // Fallback plain text
     };
     await this.transporter.sendMail(mailOptions);
   }
