@@ -7,14 +7,24 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { LoginDto, VerifyOtpDto } from './dto/register.dto';
 import { PrismaService } from 'prisma/prisma.service';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class AuthService {
+  private transporter: any;
   constructor(
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly prismaService: PrismaService,
-  ) {}
+  ) {
+    this.transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'your-email@gmail.com', // Replace with your email
+        pass: 'your-email-password', // Use App Password if 2FA enabled
+      },
+    });
+  }
 
   async validateUser(email: string): Promise<any> {
     const user = await this.userService.findUserByEmail(email);
