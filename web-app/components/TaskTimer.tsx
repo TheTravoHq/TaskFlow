@@ -75,9 +75,9 @@ export function TaskTimer({
     // Start with green (0, 200, 0)
     // Transition to yellow-orange (200, 200, 0)
     // End with red (200, 0, 0)
-    let r = Math.min(200, progress * 200);
-    let g = Math.max(0, 200 - Math.max(0, progress - 1) * 200);
-    let b = 0;
+    const r = Math.min(200, progress * 200);
+    const g = Math.max(0, 200 - Math.max(0, progress - 1) * 200);
+    const b = 0;
 
     return { r: Math.round(r), g: Math.round(g), b };
   };

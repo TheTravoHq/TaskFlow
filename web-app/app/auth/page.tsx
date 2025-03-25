@@ -13,7 +13,7 @@ export default function AuthPage() {
   const [timer, setTimer] = useState(30);
 
   useEffect(() => {
-    let interval;
+    let interval: any = null;
     if (!showResend) {
       if (timer === 0) {
         setShowResend(true);
@@ -170,9 +170,7 @@ export default function AuthPage() {
         {showOtpScreen && (
           <div className="space-y-3">
             <div className="text-center mt-6">
-              <span className="text-gray-700">
-                {"Didn't receive the code? "}
-              </span>
+              <span className="text-gray-700"> Didn't receive the code?</span>
               {showResend ? (
                 <button
                   onClick={handleResend}

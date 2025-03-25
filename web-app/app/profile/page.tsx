@@ -37,8 +37,8 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
@@ -55,19 +55,21 @@ export default function ProfilePage() {
   const totalTasks = userData?.tasks?.length || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 p-6">
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Profile Header */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] p-8 transition-all duration-300 hover:shadow-lg">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
-              <p className="text-gray-600 mt-1">{userData?.email}</p>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Profile
+              </h1>
+              <p className="text-gray-700 mt-2 text-lg">{userData?.email}</p>
             </div>
             <button
               onClick={handleLogout}
-              className="px-6 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg 
-              transition duration-200 ease-in-out flex items-center gap-2 shadow-md hover:shadow-lg"
+              className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg 
+              transition duration-300 flex items-center gap-2 shadow-md hover:shadow-lg hover:from-red-600 hover:to-red-700"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -87,10 +89,10 @@ export default function ProfilePage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Task Statistics */}
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] p-6 transition-all duration-300 hover:shadow-lg">
+            <h2 className="text-2xl font-bold text-indigo-700 mb-6">
               Task Statistics
             </h2>
             <div className="h-64">
@@ -124,6 +126,7 @@ export default function ProfilePage() {
                           fill="white"
                           textAnchor="middle"
                           dominantBaseline="central"
+                          className="text-sm font-medium"
                         >
                           {`${(percent * 100).toFixed(0)}%`}
                         </text>
@@ -134,68 +137,61 @@ export default function ProfilePage() {
                       <Cell key={index} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip
+                    contentStyle={{ borderRadius: '8px', border: 'none' }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Task Summary */}
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] p-6 transition-all duration-300 hover:shadow-lg">
+            <h2 className="text-2xl font-bold text-indigo-700 mb-6">
               Task Summary
             </h2>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <span className="text-gray-700">Completed</span>
+              {[
+                { label: 'Completed', value: stats.completed, color: 'green' },
+                {
+                  label: 'In Progress',
+                  value: stats.inProgress,
+                  color: 'indigo',
+                },
+                { label: 'Paused', value: stats.paused, color: 'amber' },
+                { label: 'Pending', value: stats.pending, color: 'gray' },
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className={`flex items-center justify-between p-4 bg-${item.color}-50 rounded-lg transform transition-all duration-300 hover:scale-[1.02] hover:shadow-md`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-3 h-3 rounded-full bg-${item.color}-500`}
+                    ></div>
+                    <span className="text-gray-700 font-medium">
+                      {item.label}
+                    </span>
+                  </div>
+                  <span className={`font-semibold text-${item.color}-700`}>
+                    {item.value}
+                  </span>
                 </div>
-                <span className="font-semibold text-green-700">
-                  {stats.completed}
-                </span>
-              </div>
-              <div className="flex items-center justify-between p-4 bg-indigo-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-indigo-500"></div>
-                  <span className="text-gray-700">In Progress</span>
-                </div>
-                <span className="font-semibold text-indigo-700">
-                  {stats.inProgress}
-                </span>
-              </div>
-              <div className="flex items-center justify-between p-4 bg-amber-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-                  <span className="text-gray-700">Paused</span>
-                </div>
-                <span className="font-semibold text-amber-700">
-                  {stats.paused}
-                </span>
-              </div>
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-gray-500"></div>
-                  <span className="text-gray-700">Pending</span>
-                </div>
-                <span className="font-semibold text-gray-700">
-                  {stats.pending}
-                </span>
-              </div>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Total Tasks Card */}
-        <div className="bg-white rounded-2xl shadow-lg p-6">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] p-6 transition-all duration-300 hover:shadow-lg">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-semibold text-gray-800">
+              <h2 className="text-2xl font-bold text-indigo-700">
                 Total Tasks
               </h2>
-              <p className="text-gray-600 mt-1">All time tasks created</p>
+              <p className="text-gray-700 mt-1">All time tasks created</p>
             </div>
-            <div className="text-4xl font-bold text-indigo-600">
+            <div className="text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
               {totalTasks}
             </div>
           </div>
