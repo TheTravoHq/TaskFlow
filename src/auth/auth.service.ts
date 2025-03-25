@@ -8,6 +8,7 @@ import { UsersService } from 'src/users/users.service';
 import { LoginDto, VerifyOtpDto } from './dto/register.dto';
 import { PrismaService } from 'prisma/prisma.service';
 import * as nodemailer from 'nodemailer';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -16,12 +17,15 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly prismaService: PrismaService,
+    private readonly configService: ConfigService,
   ) {
     this.transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.mailgun.org',
+      port: 587,
+      secure: false, // true if using port 465
       auth: {
-        user: 'your-email@gmail.com', // Replace with your email
-        pass: 'your-email-password', // Use App Password if 2FA enabled
+        user: configService.get<string>('MAILGUN_USERNAME', 'defaultSecret'),
+        pass: configService.get<string>('MAILGUN_API_KEY', 'defaultSecret'),
       },
     });
   }
@@ -53,6 +57,18 @@ export class AuthService {
 
     // TODO: Use MailerService to send code via email
     console.log(`OTP for ${email}: ${otp}`);
+    const mailgun_username = this.configService.get<string>(
+      'MAILGUN_USERNAME',
+      'defaultSecret',
+    );
+
+    const mailOptions = {
+      from: `"TaskFlow Support" <${mailgun_username}>`,
+      to: email,
+      subject: 'Your OTP Code',
+      text: `Your One-Time Password is: ${otp}. It is valid for 10 minutes.`,
+    };
+    await this.transporter.sendMail(mailOptions);
   }
 
   async verifyOtp({ email, otp }: VerifyOtpDto): Promise<any> {
