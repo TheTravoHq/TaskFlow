@@ -1,18 +1,19 @@
-import { Body, Controller, Post, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  ValidationPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto, VerifyOtpDto } from './dto/register.dto';
-import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { LoginThrottlerGuard } from './guards/login-throttler.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // @UseGuards(LocalAuthGuard)
-  // @Post('/login')
-  // async login(@Req() req): Promise<any> {
-  //   return await this.authService.login(req?.user);
-  // }
-  @SkipThrottle({ default: false })
+  @UseGuards(LoginThrottlerGuard)
   @Post('/login')
   async login(@Body(new ValidationPipe()) loginDto: LoginDto): Promise<any> {
     return await this.authService.login(loginDto);
